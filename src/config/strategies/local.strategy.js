@@ -6,7 +6,7 @@ module.exports = function () {
         usernameField: 'userName',
         passwordField: 'password'
     },
-    function(username, password, done){
+    function(username, password, done) {
         var user = {
             username: username,
             password: password
