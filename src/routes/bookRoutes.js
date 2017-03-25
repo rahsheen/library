@@ -1,51 +1,52 @@
 var express = require('express');
+var mongodb = require('mongodb').MongoClient;
+var objectId = require('mongodb').ObjectID;
 
 var bookRouter = express.Router();
 
-var router = function(nav) {
-    var books = [
-        {
-            title: 'War and Peace',
-            genre: 'Historical Fiction',
-            author: 'Lev Niko Tolstoy',
-            read: false
-        },
-        {
-            title: 'It',
-            genre: 'Horror',
-            author: 'Stephen King',
-            read: false
-        },
-            {
-            title: 'Black Devil Doll',
-            genre: 'Horror',
-            author: 'Sum Goy',
-            read: false
-        },
-            {
-            title: 'The GodFather',
-            genre: 'Crime',
-            author: 'Scorcese',
-            read: false
-        }
-    ];
+var router = function (nav) {
 
     bookRouter.route('/')
-        .get(function(req,res) {
-            res.render('bookListView', {
-                title: 'Hello from render',
-                nav: nav,
-                books: books
+        .get(function (req, res) {
+            var url = 'mongodb://localhost:27017/libraryApp';
+
+            mongodb.connect(url, function (err, db) {
+                var collection = db.collection('books');
+
+                collection.find({}).toArray(function (err, results) {
+                    res.render('bookListView', {
+                        title: 'Hello from render',
+                        nav: nav,
+                        books: results
+                    });
+
+                    db.close();
+                });
             });
         });
 
     bookRouter.route('/:id')
-        .get(function(req,res){
-            var id = req.params.id;
-            res.render('bookView', {
-                title: 'Hello from render',
-                nav: nav,
-                book: books[id]
+        .get(function (req, res) {
+            var id = new objectId(req.params.id);
+            var url = 'mongodb://localhost:27017/libraryApp';
+
+            mongodb.connect(url, function (err, db) {
+                var collection = db.collection('books');
+
+                collection.findOne({_id: id}, function (err, results) {
+                    if (err) {
+                        console.error(err);
+                        res.status(404).send('404 Error');
+                    } else {
+                        res.render('bookView', {
+                            title: 'Hello from render',
+                            nav: nav,
+                            book: results
+                        });
+
+                        db.close();
+                    }
+                });
             });
         });
 
@@ -53,4 +54,4 @@ var router = function(nav) {
 }
 
 
-module.exports  = router;
+module.exports = router;
