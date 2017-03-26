@@ -5,60 +5,18 @@ var ObjectId = require('mongodb').ObjectID;
 var bookRouter = express.Router();
 
 var router = function (nav) {
+    var bookController = require('../controllers/bookController')(null, nav);
 
-    bookRouter.use(function(req,res,next) {
-        if (!req.user) {
-            res.redirect('/');
-        }
-        next();
-    });
+    // Guard all routes if not logged in
+    bookRouter.use(bookController.middleware);
 
     bookRouter.route('/')
-        .get(function (req, res) {
-            var url = 'mongodb://localhost:27017/libraryApp';
-
-            mongodb.connect(url, function (err, db) {
-                var collection = db.collection('books');
-
-                collection.find({}).toArray(function (err, results) {
-                    res.render('bookListView', {
-                        title: 'Hello from render',
-                        nav: nav,
-                        books: results
-                    });
-
-                    db.close();
-                });
-            });
-        });
+        .get(bookController.getIndex);
 
     bookRouter.route('/:id')
-        .get(function (req, res) {
-            var id = new ObjectId(req.params.id);
-            var url = 'mongodb://localhost:27017/libraryApp';
-
-            mongodb.connect(url, function (err, db) {
-                var collection = db.collection('books');
-
-                collection.findOne({_id: id}, function (err, results) {
-                    if (err) {
-                        console.error(err);
-                        res.status(404).send('404 Error');
-                    } else {
-                        res.render('bookView', {
-                            title: 'Hello from render',
-                            nav: nav,
-                            book: results
-                        });
-
-                        db.close();
-                    }
-                });
-            });
-        });
+        .get(bookController.getById);
 
     return bookRouter;
-}
-
+};
 
 module.exports = router;
