@@ -5,7 +5,8 @@ var ObjectId = require('mongodb').ObjectID;
 var bookRouter = express.Router();
 
 var router = function (nav) {
-    var bookController = require('../controllers/bookController')(null, nav);
+    var bookService = require('../services/goodreadsService')();
+    var bookController = require('../controllers/bookController')(bookService, nav);
 
     // Guard all routes if not logged in
     bookRouter.use(bookController.middleware);

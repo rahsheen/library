@@ -3,7 +3,7 @@ var ObjectId = require('mongodb').ObjectID;
 
 var bookController = function (bookService, nav) {
 
-    var middleware = function(req,res,next) {
+    var middleware = function (req, res, next) {
         // if (!req.user) {
         //     res.redirect('/');
         // }
@@ -35,20 +35,28 @@ var bookController = function (bookService, nav) {
         mongodb.connect(url, function (err, db) {
             var collection = db.collection('books');
 
-            collection.findOne({ _id: id }, function (err, results) {
-                if (err) {
-                    console.error(err);
-                    res.status(404).send('404 Error');
-                } else {
-                    res.render('bookView', {
-                        title: 'Hello from render',
-                        nav: nav,
-                        book: results
-                    });
-
-                    db.close();
-                }
-            });
+            collection.findOne({
+                _id: id
+            },
+                function (err, results) {
+                    if (results.bookId) {
+                        bookService.getBookById(results.bookId,
+                            function (err, book) {
+                                results.book = book;
+                                res.render('bookView', {
+                                    title: 'Hello from render',
+                                    nav: nav,
+                                    book: results
+                                });
+                            });
+                    } else {
+                        res.render('bookView', {
+                            title: 'Hello from render',
+                            nav: nav,
+                            book: results
+                        });
+                    }
+                });
         });
     };
 

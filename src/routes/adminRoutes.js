@@ -7,12 +7,14 @@ var books = [
             title: 'War and Peace',
             genre: 'Historical Fiction',
             author: 'Lev Niko Tolstoy',
+            bookId: 656,
             read: false
         },
         {
             title: 'It',
             genre: 'Horror',
             author: 'Stephen King',
+            bookId: 830502,
             read: false
         },
             {
